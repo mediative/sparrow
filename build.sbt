@@ -42,20 +42,12 @@ lazy val commonSettings = Seq(
   fork in Test := true
 )
 
-// FIXME paradise-macro is required for 2.11 with macro annotations
-// Required to support both 2.10 and 2.11
+// Macro-paradise is required with Scala 2.11 because of annotation macros
 lazy val paradiseVersion = "2.0.1"
 lazy val quasiquotes = libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value
-) ++ {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 10)) => Seq(
-      compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
-      "org.scalamacros" %% "quasiquotes" % paradiseVersion
-    )
-    case _ /* 2.11+ */ => Seq.empty
-  }
-}
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+   compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)
+)
 
 // Scala style guide: https://github.com/daniel-trinh/scalariform#scala-style-guide
 // ScalariformKeys.preferences := ScalariformKeys.preferences.value
