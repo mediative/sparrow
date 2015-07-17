@@ -4,12 +4,11 @@ import sbt.Keys._
 
 // addCommandAlias("format-code",    ";compile:scalariformFormat;test:scalariformFormat;it:scalariformFormat")
 
-name := "sparrow"
-
 lazy val buildSettings = Seq(
   organization       := "com.mediative",
   scalaVersion       := "2.10.4",
-  crossScalaVersions := Seq("2.10.4", "2.10.5", "2.11.7")
+  crossScalaVersions := Seq("2.10.4", "2.10.5", "2.11.7"),
+  licenses += ("Apache-2.0", url("http://www.opensource.org/licenses/apache2.0"))
 )
 
 enablePlugins(GitVersioning)
@@ -95,6 +94,7 @@ lazy val sparkSettings = Seq(
 lazy val core = project
   .configs(IntegrationTest)
   .settings(
+    name := "sparrow",
     mpnBrainSettings,
     quasiquotes,
     sparkSettings,
