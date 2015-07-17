@@ -26,7 +26,7 @@ lazy val commonSettings = Seq(
     "-language:experimental.macros",
     "-unchecked",
     "-Xexperimental",
-    "-Xfatal-warnings",
+    // "-Xfatal-warnings", Off due to deprecation warnings from macro paradise
     "-Xlint",
     "-Xfuture",
     "-Yno-adapted-args",
@@ -80,14 +80,23 @@ lazy val logger = Seq(
 )
 
 
-val HadoopJobRunner = "canpipe.parser.spark.RunParser" // TODO: change
+def sparkLibs(scalaVersion: String) = {
+  val sparkVersion = CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 10)) => "1.3.1-DBC"
+    case _ /* 2.11+ */ => "1.3.1"
+  }
+
+  Seq(
+    "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
+    "org.apache.spark" %% "spark-sql"  % sparkVersion % "provided"
+  )
+}
+
 lazy val sparkSettings = Seq(
   resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
   parallelExecution in IntegrationTest := false,
-  libraryDependencies ++= Seq(
-    "org.apache.spark" %% "spark-core" % "1.3.1-DBC" % "provided",
-    "org.apache.spark" %% "spark-sql"  % "1.3.1-DBC" % "provided",
-    "com.databricks"  %% "spark-csv"  % "1.0.3"
+  libraryDependencies ++= sparkLibs(scalaVersion.value) ++ Seq(
+    "com.databricks" %% "spark-csv"  % "1.0.3"
   )
 )
 
