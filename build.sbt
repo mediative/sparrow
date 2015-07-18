@@ -5,7 +5,7 @@ import scalariform.formatter.preferences._
 enablePlugins(GitVersioning)
 git.useGitDescribe := true
 
-lazy val commonSettings = Jvm.required(Jvm.V7) ++ Seq(
+lazy val commonSettings = Seq(
   organization       := "com.mediative",
   scalaVersion       := "2.10.5",
   crossScalaVersions := Seq("2.10.5", "2.11.7"),
