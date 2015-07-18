@@ -1,20 +1,16 @@
 import sbt.Keys._
 
-// import scalariform.formatter.preferences._
-
-// addCommandAlias("format-code",    ";compile:scalariformFormat;test:scalariformFormat;it:scalariformFormat")
-
-lazy val buildSettings = Seq(
-  organization       := "com.mediative",
-  scalaVersion       := "2.10.4",
-  crossScalaVersions := Seq("2.10.4", "2.10.5", "2.11.7"),
-  licenses += ("Apache-2.0", url("http://www.opensource.org/licenses/apache2.0"))
-)
+import scalariform.formatter.preferences._
 
 enablePlugins(GitVersioning)
 git.useGitDescribe := true
 
-lazy val commonSettings = Seq(
+lazy val commonSettings = Jvm.required(Jvm.V7) ++ Seq(
+  organization       := "com.mediative",
+  scalaVersion       := "2.10.5",
+  crossScalaVersions := Seq("2.10.5", "2.11.7"),
+  licenses += ("Apache-2.0", url("http://www.opensource.org/licenses/apache2.0")),
+  resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding", "UTF-8",
@@ -41,23 +37,14 @@ lazy val commonSettings = Seq(
   fork in Test := true
 )
 
-// Macro-paradise is required with Scala 2.11 because of annotation macros
-lazy val paradiseVersion = "2.0.1"
-lazy val quasiquotes = libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-   compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)
-)
-
 // Scala style guide: https://github.com/daniel-trinh/scalariform#scala-style-guide
-// ScalariformKeys.preferences := ScalariformKeys.preferences.value
-//   .setPreference(DoubleIndentClassDeclaration, true)
-//   .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true)
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+   .setPreference(DoubleIndentClassDeclaration, true)
+   .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true)
 
-lazy val mpnBrainSettings =
-  buildSettings ++
-  commonSettings ++
-  // defaultScalariformSettingsWithIt ++
-  Jvm.required(Jvm.V7)
+defaultScalariformSettings
+addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
+
 
 lazy val scalaTest = Seq(
   "junit"            % "junit"        % "4.10"   % "test",
@@ -65,11 +52,6 @@ lazy val scalaTest = Seq(
   "org.scalatest"   %% "scalatest"    % "2.2.4"  % "test",
   "org.scalacheck"  %% "scalacheck"   % "1.12.1" % "test"
 )
-
-lazy val logger = Seq(
-  "org.log4s"  %% "log4s"         % "1.1.5"
-)
-
 
 def sparkLibs(scalaVersion: String) = {
   val sparkVersion = CrossVersion.partialVersion(scalaVersion) match {
@@ -83,24 +65,17 @@ def sparkLibs(scalaVersion: String) = {
   )
 }
 
-lazy val sparkSettings = Seq(
-  resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
-  parallelExecution in IntegrationTest := false,
-  libraryDependencies ++= sparkLibs(scalaVersion.value) ++ Seq(
-    "com.databricks" %% "spark-csv"  % "1.0.3"
-  )
-)
-
 lazy val core = project
-  .configs(IntegrationTest)
   .settings(
     name := "sparrow",
-    mpnBrainSettings,
-    quasiquotes,
-    sparkSettings,
-    libraryDependencies ++= scalaTest ++ logger ++ Seq(
+    commonSettings,
+    defaultScalariformSettings,
+    libraryDependencies ++= scalaTest ++ sparkLibs(scalaVersion.value) ++ Seq(
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
       "org.scalaz"             %% "scalaz-core"     % "7.1.1", // https://github.com/scalaz/scalaz
-      "com.github.nscala-time" %% "nscala-time"     % "1.8.0"
+      "com.github.nscala-time" %% "nscala-time"     % "1.8.0",
+      "org.log4s"              %% "log4s"           % "1.1.5",
+      "org.scala-lang"          % "scala-reflect"   % scalaVersion.value,
+      compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
     )
   )
