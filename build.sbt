@@ -41,6 +41,22 @@ lazy val commonSettings = Seq(
   fork in Test := true
 )
 
+lazy val noPublishSettings = Seq(
+  publish := (),
+  publishLocal := (),
+  publishArtifact := false
+)
+
+lazy val publishSettings = Seq(
+  homepage := Some(url("https://github.com/ypg-data/sparrow")),
+  apiURL := Some(url("https://ypg-data.github.io/sparrow/api/")),
+  autoAPIMappings := true,
+  publishArtifact in Test := false,
+  publishMavenStyle := false,
+  bintrayRepository := "sparrow",
+  bintrayOrganization := Some("ypg-data")
+)
+
 // Scala style guide: https://github.com/daniel-trinh/scalariform#scala-style-guide
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
    .setPreference(DoubleIndentClassDeclaration, true)
@@ -67,10 +83,18 @@ def sparkLibs(scalaVersion: String) = {
   )
 }
 
+lazy val root = (project in file("."))
+  .settings(
+    name := "sparrow-project",
+    noPublishSettings
+  )
+  .aggregate(core)
+
 lazy val core = project
   .settings(
     name := "sparrow",
     commonSettings,
+    publishSettings,
     defaultScalariformSettings,
     libraryDependencies ++= scalaTest ++ sparkLibs(scalaVersion.value) ++ Seq(
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",

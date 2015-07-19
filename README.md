@@ -4,6 +4,7 @@ Sparrow is a Scala library for converting Spark Dataframe rows to case classes.
 
 [![Build Status](https://travis-ci.org/ypg-data/sparrow.svg)](https://travis-ci.org/ypg-data/sparrow)
 [![Join the chat at https://gitter.im/ypg-data/sparrow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ypg-data/sparrow)
+[![Download latest version](https://api.bintray.com/packages/ypg-data/sparrow/sparrow/images/download.svg)](https://bintray.com/ypg-data/sparrow/sparrow/_latestVersion)
 
 ## Status
 
@@ -49,6 +50,12 @@ For code contributions, these are the suggested steps:
  - Create a pull request.
  - Address any issues raised during the code review.
  - Once you get a "+1" on the pull request, the change can be merged.
+
+## Releasing
+
+Once you've tagged a version run the following command to publish:
+
+    $ sbt publish core/bintrayRemoteSign
 
 ## License
 
