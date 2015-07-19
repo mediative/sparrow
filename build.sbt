@@ -1,8 +1,9 @@
 import sbt.Keys._
-
+import de.heikoseeberger.sbtheader.license.Apache2_0
 import scalariform.formatter.preferences._
 
 addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
+addCommandAlias("update-license", ";compile:createHeaders;test:createHeaders")
 
 enablePlugins(GitVersioning)
 git.useGitDescribe := true
@@ -11,7 +12,8 @@ lazy val commonSettings = Seq(
   organization       := "com.mediative",
   scalaVersion       := "2.10.5",
   crossScalaVersions := Seq("2.10.5", "2.11.7"),
-  licenses += ("Apache-2.0", url("http://www.opensource.org/licenses/apache2.0")),
+  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+  headers := Map("scala" -> Apache2_0("2015", "Mediative")),
   resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
   scalacOptions ++= Seq(
     "-deprecation",
