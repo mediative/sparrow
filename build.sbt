@@ -2,6 +2,8 @@ import sbt.Keys._
 
 import scalariform.formatter.preferences._
 
+addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
+
 enablePlugins(GitVersioning)
 git.useGitDescribe := true
 
@@ -43,8 +45,6 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
    .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true)
 
 defaultScalariformSettings
-addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
-
 
 lazy val scalaTest = Seq(
   "junit"            % "junit"        % "4.10"   % "test",
