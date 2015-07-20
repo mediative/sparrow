@@ -33,6 +33,11 @@ The best way to get started at this point is to read the [API
 docs](https://ypg-data.github.io/sparrow/api) and look at the [examples in the
 tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.mediative.sparrow).
 
+To integrate it into an SBT project add the following to the settings:
+
+    resolvers += Resolver.url("Sparrow Releases", url("https://dl.bintray.com/ypg-data/sparrow"))(Resolver.ivyStylePatterns),
+    libraryDependencies += "com.mediative" %% "sparrow" % "0.1.0"
+
 ## Contributing
 
 Bugs and feature requests should be reported in the [GitHub issue
