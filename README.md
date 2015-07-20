@@ -59,9 +59,11 @@ For code contributions, these are the suggested steps:
 
 ## Releasing
 
-Once you've tagged a version run the following command to publish:
+To release version `x.y.z` run:
 
-    $ sbt publish ghpages-push-site
+    $ sbt release -Dversion=x.y.z
+
+This will take care of running tests, tagging and publishing JARs and API docs.
 
 ## License
 
