@@ -27,6 +27,12 @@ To build a package for Scala 2.11 run the following command:
 
     $ sbt ++2.11.7 test package
 
+## Getting Started
+
+The best way to get started at this point is to read the [API
+docs](https://ypg-data.github.io/sparrow/api) and look at the [examples in the
+tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.mediative.sparrow).
+
 ## Contributing
 
 Bugs and feature requests should be reported in the [GitHub issue
@@ -55,11 +61,11 @@ For code contributions, these are the suggested steps:
 
 Once you've tagged a version run the following command to publish:
 
-    $ sbt publish core/bintrayRemoteSign
+    $ sbt publish ghpages-push-site
 
 ## License
 
 Copyright 2015 Mediative
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) file
-for terms and conditions for use, reproduction, and distribution.
+Licensed under the Apache License, Version 2.0. See LICENSE file for terms and
+conditions for use, reproduction, and distribution.

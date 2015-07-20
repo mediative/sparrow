@@ -1,6 +1,7 @@
 import sbt.Keys._
 import de.heikoseeberger.sbtheader.license.Apache2_0
 import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtSite.SiteKeys.siteMappings
 
 addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
 addCommandAlias("update-license", ";compile:createHeaders;test:createHeaders")
@@ -95,6 +96,10 @@ lazy val core = project
     name := "sparrow",
     commonSettings,
     publishSettings,
+    site.settings,
+    ghpages.settings,
+    site.includeScaladoc("api"),
+    git.remoteRepo := "git@github.com:ypg-data/sparrow.git",
     defaultScalariformSettings,
     libraryDependencies ++= scalaTest ++ sparkLibs(scalaVersion.value) ++ Seq(
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
