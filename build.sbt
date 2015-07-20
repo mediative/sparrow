@@ -2,6 +2,9 @@ import sbt.Keys._
 import de.heikoseeberger.sbtheader.license.Apache2_0
 import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtSite.SiteKeys.siteMappings
+import com.typesafe.sbt.SbtGhPages.GhPagesKeys.{ pushSite => ghpagesPushSite }
+import ReleaseTransformations._
+import ReleaseKeys._
 
 addCommandAlias("format", ";compile:scalariformFormat;test:scalariformFormat")
 addCommandAlias("update-license", ";compile:createHeaders;test:createHeaders")
@@ -84,10 +87,41 @@ def sparkLibs(scalaVersion: String) = {
   )
 }
 
+/*
+ * Customized release process that reads the release version from the
+ * command line via `-Dversion=x.y.z` and extends the publishing step to
+ * also update of API docs hosted on the project's GitHub pages.
+ *
+ * Compared to the default sbt-release process, all steps that update
+ * and commit the version file before and after tagging the release have
+ * been removed, since for this project SBT is configured to read the
+ * project version from Git.
+ */
+lazy val releaseSettings = Seq(
+  releaseCrossBuild := true,
+  releaseTagComment := s"Releasing ${(version in ThisBuild).value}",
+  releaseTagName := (version in ThisBuild).value,
+  releaseVersionFile := target.value / "unused-version.sbt",
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    { st: State =>
+      val v = sys.props.getOrElse("version", sys.error("No version specified"))
+      st.put(versions, (v, v))
+    },
+    runTest,
+    setReleaseVersion,
+    tagRelease,
+    publishArtifacts,
+    releaseStepTask(ghpagesPushSite in core),
+    pushChanges
+  )
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "sparrow-project",
-    noPublishSettings
+    noPublishSettings,
+    releaseSettings
   )
   .aggregate(core)
 
