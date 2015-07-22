@@ -96,13 +96,16 @@ object DataFrameReaderTest {
   }
 }
 
-class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
+object TestCaseClasses {
   @schema(equal = RowConverter.lenientEqual)
   case class TestToRdd(intVal: Int, stringVal: String)
+}
 
+class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
   import DataFrameReaderTest._
 
   val sc = new SparkContext("local", "test2")
+  val sqlContext = new SQLContext(sc)
 
   override def afterAll() = sc.stop()
 
@@ -147,7 +150,6 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     import DataFrameReader._
 
     def testSuccess[T: RowConverter: ClassTag](json: Array[String], expected: List[T]) = {
-      val sqlContext = new SQLContext(sc)
       val df = sqlContext.jsonRDD(sc.parallelize(json))
       val rdd = toRDD[T](df).valueOr { es => fail((es.head :: es.tail).mkString("\n")) }
 
@@ -155,19 +157,19 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     }
 
     def testFailure[T: RowConverter: ClassTag](json: Array[String], expected: NonEmptyList[String]) = {
-      val sqlContext = new SQLContext(sc)
       val df = sqlContext.jsonRDD(sc.parallelize(json))
 
       assert(toRDD[T](df) == expected.failure)
     }
 
     "round-trip from RDD to DataFrame back to RDD" in {
+      import TestCaseClasses._
+
       // To get DataFrame#toRDD usage.
       import com.mediative.sparrow.syntax.df._
 
       val expected = TestToRdd(1, "a")
-      val sql = new SQLContext(sc)
-      val df = sql.createDataFrame(sc.parallelize(List(expected)))
+      val df = sqlContext.createDataFrame(sc.parallelize(List(expected)))
 
       assert(df.toRDD[TestToRdd].toOption.get.first == expected)
     }
