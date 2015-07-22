@@ -16,6 +16,7 @@
 
 package com.mediative.sparrow
 
+import java.sql.Timestamp
 import scala.reflect.ClassTag
 
 import scalaz._
@@ -106,6 +107,9 @@ object TestCaseClasses {
 
   @schema(equal = RowConverter.lenientEqual)
   case class TestToRdd2(intVal: Int, intOptionVal: Option[Int])
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd3(stringVal: String, timestampVal: Timestamp)
 }
 
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
@@ -201,6 +205,19 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
 
         assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
       }
+    }
+
+    "round-trip TestToRdd3 from RDD to DataFrame back to RDD" in {
+      import TestCaseClasses.TestToRdd3
+
+      val expected =
+        TestToRdd3("a", Timestamp.valueOf("2015-07-15 09:00:00"))
+
+      val df =
+        sqlContext.createDataFrame(sc.parallelize(List(expected)))
+
+        pendingUntilFixed(
+          assert(df.toRDD[TestToRdd3].toOption.get.first == expected))
     }
 
     "work for simple case class with only primitives" in {
