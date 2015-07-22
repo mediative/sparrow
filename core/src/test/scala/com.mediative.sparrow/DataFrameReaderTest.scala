@@ -97,6 +97,8 @@ object DataFrameReaderTest {
 }
 
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd(intVal: Int, stringVal: String)
 
   import DataFrameReaderTest._
 
@@ -157,6 +159,17 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       val df = sqlContext.jsonRDD(sc.parallelize(json))
 
       assert(toRDD[T](df) == expected.failure)
+    }
+
+    "round-trip from RDD to DataFrame back to RDD" in {
+      // To get DataFrame#toRDD usage.
+      import com.mediative.sparrow.syntax.df._
+
+      val expected = TestToRdd(1, "a")
+      val sql = new SQLContext(sc)
+      val df = sql.createDataFrame(sc.parallelize(List(expected)))
+
+      assert(df.toRDD[TestToRdd].toOption.get.first == expected)
     }
 
     "work for simple case class with only primitives" in {
