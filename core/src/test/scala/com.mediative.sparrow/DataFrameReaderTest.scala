@@ -103,6 +103,9 @@ public constructor arguments.
 object TestCaseClasses {
   @schema(equal = RowConverter.lenientEqual)
   case class TestToRdd1(intVal: Int, stringVal: String)
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd2(intVal: Int, intOptionVal: Option[Int])
 }
 
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
@@ -166,16 +169,38 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       assert(toRDD[T](df) == expected.failure)
     }
 
+    // To get DataFrame#toRDD usage.
+    import com.mediative.sparrow.syntax.df._
+
     "round-trip TestToRdd1 from RDD to DataFrame back to RDD" in {
       import TestCaseClasses.TestToRdd1
-
-      // To get DataFrame#toRDD usage.
-      import com.mediative.sparrow.syntax.df._
 
       val expected = TestToRdd1(1, "a")
       val df = sqlContext.createDataFrame(sc.parallelize(List(expected)))
 
       assert(df.toRDD[TestToRdd1].toOption.get.first == expected)
+    }
+
+    "round-trip TestToRdd2 from RDD to DataFrame back to RDD" - {
+      "when containing some value" in {
+        import TestCaseClasses.TestToRdd2
+
+        val expected = TestToRdd2(1, Option(1))
+        val df =
+          sqlContext.createDataFrame(sc.parallelize(List(expected)))
+
+        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
+      }
+
+      "when containing no value" in {
+        import TestCaseClasses.TestToRdd2
+
+        val expected = TestToRdd2(1, Option.empty)
+        val df =
+          sqlContext.createDataFrame(sc.parallelize(List(expected)))
+
+        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
+      }
     }
 
     "work for simple case class with only primitives" in {
