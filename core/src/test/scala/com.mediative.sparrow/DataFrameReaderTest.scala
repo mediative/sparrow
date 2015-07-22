@@ -96,9 +96,13 @@ object DataFrameReaderTest {
   }
 }
 
+/*
+By design, toRDD requires the classes it works on to take at least two
+public constructor arguments.
+*/
 object TestCaseClasses {
   @schema(equal = RowConverter.lenientEqual)
-  case class TestToRdd(intVal: Int, stringVal: String)
+  case class TestToRdd1(intVal: Int, stringVal: String)
 }
 
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
@@ -162,16 +166,16 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       assert(toRDD[T](df) == expected.failure)
     }
 
-    "round-trip from RDD to DataFrame back to RDD" in {
-      import TestCaseClasses._
+    "round-trip TestToRdd1 from RDD to DataFrame back to RDD" in {
+      import TestCaseClasses.TestToRdd1
 
       // To get DataFrame#toRDD usage.
       import com.mediative.sparrow.syntax.df._
 
-      val expected = TestToRdd(1, "a")
+      val expected = TestToRdd1(1, "a")
       val df = sqlContext.createDataFrame(sc.parallelize(List(expected)))
 
-      assert(df.toRDD[TestToRdd].toOption.get.first == expected)
+      assert(df.toRDD[TestToRdd1].toOption.get.first == expected)
     }
 
     "work for simple case class with only primitives" in {
