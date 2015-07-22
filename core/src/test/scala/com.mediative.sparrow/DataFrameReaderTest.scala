@@ -176,7 +176,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     // To get DataFrame#toRDD usage.
     import com.mediative.sparrow.syntax.df._
 
-    "round-trip TestToRdd1 from RDD to DataFrame back to RDD" in {
+    "round-trip an object containing an Int and a String from RDD to DataFrame back to RDD" in {
       import TestCaseClasses.TestToRdd1
 
       val expected = TestToRdd1(1, "a")
@@ -185,7 +185,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       assert(df.toRDD[TestToRdd1].toOption.get.first == expected)
     }
 
-    "round-trip TestToRdd2 from RDD to DataFrame back to RDD" - {
+    "round-trip an object containing an Int and an optional Int from RDD to DataFrame back to RDD" - {
       "when containing some value" in {
         import TestCaseClasses.TestToRdd2
 
@@ -207,7 +207,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       }
     }
 
-    "round-trip TestToRdd3 from RDD to DataFrame back to RDD" in {
+    "round-trip an object containing a String and a Timestamp from RDD to DataFrame back to RDD" in {
       import TestCaseClasses.TestToRdd3
 
       val expected =
