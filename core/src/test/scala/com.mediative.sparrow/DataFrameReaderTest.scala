@@ -156,7 +156,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     }
   }
 
-  "toRDD" - {
+  "toRDD should" - {
 
     import DataFrameReader._
 
@@ -260,7 +260,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       }
     }
 
-    "supported nested objects" in {
+    "support nested objects" in {
       val json = Array(
         """{"name": "Guillaume", "inner": {"name": "First Inner", "count": 121}}""",
         """{"name": "Last", "inner": {"name": "Last Inner", "count": 12}}"""
