@@ -67,8 +67,10 @@ For code contributions, these are the suggested steps:
 To release version `x.y.z` run:
 
     $ sbt release -Dversion=x.y.z
+    $ sbt ++2.11.7 publish
 
-This will take care of running tests, tagging and publishing JARs and API docs.
+This will take care of running tests, tagging and publishing JARs and API docs
+for both version 2.10 and 2.11.
 
 ## License
 
