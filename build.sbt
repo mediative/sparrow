@@ -57,7 +57,7 @@ lazy val publishSettings = Seq(
   autoAPIMappings := true,
   publishArtifact in Test := false,
   publishMavenStyle := false,
-  bintrayRepository := "sparrow",
+  bintrayRepository := "ivy-releases",
   bintrayOrganization := Some("ypg-data")
 )
 
