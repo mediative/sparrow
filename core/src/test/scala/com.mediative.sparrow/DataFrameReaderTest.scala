@@ -110,6 +110,28 @@ object TestCaseClasses {
 
   @schema(equal = RowConverter.lenientEqual)
   case class TestToRdd3(stringVal: String, timestampVal: Timestamp)
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd4(intVal: Int, doubleVal: Double)
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd5(intVal: Int, doubleVal: Option[Double])
+
+  import Wrap._
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd6(intVal: Int, wrappedDoubleVal: Option[Wrapped[Double]])
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd7(intVal: Int, wrappedStringVal: Option[Wrapped[String]])
+
+  @schema(equal = RowConverter.lenientEqual)
+  case class TestToRdd8(intVal: Int, wrappedStringVal: Wrapped[String])
+
+  object Wrap {
+    case class Wrapped[T](unwrap: T)
+    implicit def wrappedDoubleConverter[T: FieldConverter]: FieldConverter[Wrapped[T]] =
+      FieldConverter.reader[T].map(Wrapped(_))
+  }
 }
 
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
@@ -173,51 +195,107 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       assert(toRDD[T](df) == expected.failure)
     }
 
-    // To get DataFrame#toRDD usage.
-    import com.mediative.sparrow.syntax.df._
-
-    "round-trip an object containing an Int and a String from RDD to DataFrame back to RDD" in {
-      import TestCaseClasses.TestToRdd1
-
-      val expected = TestToRdd1(1, "a")
-      val df = sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-      assert(df.toRDD[TestToRdd1].toOption.get.first == expected)
-    }
-
-    "round-trip an object containing an Int and an optional Int from RDD to DataFrame back to RDD" - {
-      "when containing some value" in {
-        import TestCaseClasses.TestToRdd2
-
-        val expected = TestToRdd2(1, Option(1))
-        val df =
-          sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
+    "successfully marshall RDD => DataFrame => RDD an object containing" - {
+      // To get DataFrame#toRDD usage.
+      import com.mediative.sparrow.syntax.df._
+      import scala.reflect.runtime.universe.TypeTag
+      def testRDD_DataFrame_codec[T <: Product: ClassTag: TypeTag: RowConverter](value: T): Unit = {
+        val rdd0 = sc.parallelize(List(value))
+        assertResult(1) { rdd0.count }
+        val df = sqlContext.createDataFrame(rdd0)
+        val rdd1Maybe = df.toRDD[T]
+        assert(rdd1Maybe.isSuccess, rdd1Maybe)
+        val rdd1 = rdd1Maybe.toOption.get
+        assertResult(0) { rdd0.subtract(rdd1).count }
+        assertResult(0) { rdd1.subtract(rdd0).count }
       }
 
-      "when containing no value" in {
-        import TestCaseClasses.TestToRdd2
+      import TestCaseClasses._
 
-        val expected = TestToRdd2(1, Option.empty)
-        val df =
-          sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
+      "Int, String" in {
+        testRDD_DataFrame_codec(TestToRdd1(1, "a"))
       }
-    }
 
-    "round-trip an object containing a String and a Timestamp from RDD to DataFrame back to RDD" in {
-      import TestCaseClasses.TestToRdd3
+      "Int, Option[Int]" - {
+        "when Some(Int)" in {
+          testRDD_DataFrame_codec(TestToRdd2(1, Option(1)))
+        }
 
-      val expected =
-        TestToRdd3("a", Timestamp.valueOf("2015-07-15 09:00:00"))
+        "when None" in {
+          testRDD_DataFrame_codec(TestToRdd2(1, Option.empty))
+        }
+      }
 
-      val df =
-        sqlContext.createDataFrame(sc.parallelize(List(expected)))
+      "String, java.sql.Timestamp" in {
+        pendingUntilFixed {
+          // FIXME:
+          // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'timestampVal' isn't a LongType as expected, TimestampType received.)) (DataFrameReaderTest.scala:203)
+          testRDD_DataFrame_codec(
+            TestToRdd3("a", Timestamp.valueOf("2015-07-15 09:00:00"))
+          )
+        }
+      }
 
-        pendingUntilFixed(
-          assert(df.toRDD[TestToRdd3].toOption.get.first == expected))
+      "Int, Double" in {
+        pendingUntilFixed {
+          // FIXME:
+          // "org.apache.spark.SparkException: Job aborted due to stage failure"
+          // Caused by: java.lang.ClassCastException: java.lang.Double cannot be cast to java.lang.Integer
+          // at scala.runtime.BoxesRunTime.unboxToInt(BoxesRunTime.java:106)
+          testRDD_DataFrame_codec(TestToRdd4(1, 2.0))
+        }
+      }
+
+      "Int, Option[Double]" - {
+        "when Some(Double)" in {
+          testRDD_DataFrame_codec(TestToRdd5(1, Some(2.0)))
+        }
+        "when None" in {
+          testRDD_DataFrame_codec(TestToRdd5(1, None))
+        }
+      }
+
+      "Int, Wrapped[String]" in {
+        pendingUntilFixed {
+          // FIXME:
+          // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'wrappedStringVal' isn't a StringType as expected, StructType(StructField(unwrap,StringType,true)) received.)) (DataFrameReaderTest.scala:207)
+          testRDD_DataFrame_codec(TestToRdd8(1, Wrap.Wrapped("foo")))
+        }
+      }
+
+      "Int, Option[Wrapped[Double]]" - {
+        "when None" in {
+          pendingUntilFixed {
+            // FIXME:
+            // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'wrappedDoubleVal' isn't a DoubleType as expected, StructType(StructField(unwrap,DoubleType,false)) received.)) (DataFrameReaderTest.scala:207)
+            testRDD_DataFrame_codec(TestToRdd6(1, None))
+          }
+        }
+        "when Some(Wrapped[Double])" in {
+          pendingUntilFixed {
+            // FIXME:
+            // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'wrappedDoubleVal' isn't a DoubleType as expected, StructType(StructField(unwrap,DoubleType,false)) received.)) (DataFrameReaderTest.scala:204)
+            testRDD_DataFrame_codec(TestToRdd6(1, Some(Wrap.Wrapped(2.0))))
+          }
+        }
+      }
+
+      "Int, Option[Wrapped[String]]" - {
+        "when None" in {
+          pendingUntilFixed {
+            // FIXME:
+            // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'wrappedStringVal' isn't a StringType as expected, StructType(StructField(unwrap,StringType,true)) received.)) (DataFrameReaderTest.scala:204)
+            testRDD_DataFrame_codec(TestToRdd7(1, None))
+          }
+        }
+        "when Some(Wrapped[String])" in {
+          pendingUntilFixed {
+            // FIXME:
+            // rdd1Maybe.isSuccess was false Failure(NonEmptyList(The field 'wrappedStringVal' isn't a StringType as expected, StructType(StructField(unwrap,StringType,true)) received.)) (DataFrameReaderTest.scala:204)
+            testRDD_DataFrame_codec(TestToRdd7(1, Some(Wrap.Wrapped("foo"))))
+          }
+        }
+      }
     }
 
     "work for simple case class with only primitives" in {
