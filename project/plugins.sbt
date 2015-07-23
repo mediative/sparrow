@@ -1,6 +1,5 @@
-//resolvers += "typesafe maven" at "http://repo.typesafe.com/typesafe/maven-releases"
-
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+resolvers += Resolver.url("SBT Plugin Releases", url("https://dl.bintray.com/sbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("com.eed3si9n"      % "sbt-buildinfo"    % "0.4.0")
 addSbtPlugin("com.typesafe.sbt"  % "sbt-scalariform"  % "1.3.0")

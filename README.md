@@ -23,7 +23,7 @@ tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.m
 
 To use the libray in an SBT project add the following two project settings:
 
-    resolvers += Resolver.url("Sparrow Releases", url("https://dl.bintray.com/ypg-data/sparrow"))(Resolver.ivyStylePatterns)
+    resolvers += Resolver.url("Sparrow Releases", url("https://dl.bintray.com/ypg-data/ivy-releases"))(Resolver.ivyStylePatterns)
     libraryDependencies += "com.mediative" %% "sparrow" % "0.1.0"
 
 ## Building and Testing
@@ -67,8 +67,10 @@ For code contributions, these are the suggested steps:
 To release version `x.y.z` run:
 
     $ sbt release -Dversion=x.y.z
+    $ sbt ++2.11.7 publish
 
-This will take care of running tests, tagging and publishing JARs and API docs.
+This will take care of running tests, tagging and publishing JARs and API docs
+for both version 2.10 and 2.11.
 
 ## License
 
