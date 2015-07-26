@@ -60,6 +60,15 @@ lazy val publishSettings = Seq(
   bintrayOrganization := Some("ypg-data")
 )
 
+lazy val sparkPackagesSettings = Seq(
+  spName := "ypg-data/sparrow",
+  sparkVersion := "1.3.1",
+  sparkComponents += "sql",
+  spAppendScalaVersion := true,
+  spIncludeMaven := true,
+  credentials += Credentials(Path.userHome / ".credentials" / "spark-packages.properties")
+)
+
 // Scala style guide: https://github.com/daniel-trinh/scalariform#scala-style-guide
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
    .setPreference(DoubleIndentClassDeclaration, true)
@@ -117,6 +126,7 @@ lazy val core = project
     name := "sparrow",
     commonSettings,
     publishSettings,
+    sparkPackagesSettings,
     site.settings,
     ghpages.settings,
     site.includeScaladoc("api"),
