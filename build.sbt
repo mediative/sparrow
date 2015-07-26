@@ -18,7 +18,6 @@ lazy val commonSettings = Seq(
   crossScalaVersions := Seq("2.10.5", "2.11.7"),
   licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
   headers := Map("scala" -> Apache2_0("2015", "Mediative")),
-  resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding", "UTF-8",
@@ -75,18 +74,6 @@ lazy val scalaTest = Seq(
   "org.scalacheck"  %% "scalacheck"   % "1.12.1" % "test"
 )
 
-def sparkLibs(scalaVersion: String) = {
-  val sparkVersion = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 10)) => "1.3.1-DBC"
-    case _ /* 2.11+ */ => "1.3.1"
-  }
-
-  Seq(
-    "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
-    "org.apache.spark" %% "spark-sql"  % sparkVersion % "provided"
-  )
-}
-
 /*
  * Customized release process that reads the release version from the
  * command line via `-Dversion=x.y.z` and extends the publishing step to
@@ -135,7 +122,9 @@ lazy val core = project
     site.includeScaladoc("api"),
     git.remoteRepo := "git@github.com:ypg-data/sparrow.git",
     defaultScalariformSettings,
-    libraryDependencies ++= scalaTest ++ sparkLibs(scalaVersion.value) ++ Seq(
+    libraryDependencies ++= scalaTest ++ Seq(
+      "org.apache.spark"       %% "spark-core"      % "1.3.1" % "provided",
+      "org.apache.spark"       %% "spark-sql"       % "1.3.1" % "provided",
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
       "org.scalaz"             %% "scalaz-core"     % "7.1.1", // https://github.com/scalaz/scalaz
       "com.github.nscala-time" %% "nscala-time"     % "1.8.0",
