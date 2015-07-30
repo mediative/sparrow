@@ -72,6 +72,18 @@ To release version `x.y.z` run:
 This will take care of running tests, tagging and publishing JARs and API docs
 for both version 2.10 and 2.11.
 
+    $ sbt core/spPublish
+    $ sbt ++2.11.7 core/spPublish
+
+The above requires that `~/.credentials/spark-packages.properties` exists with
+the following content:
+
+    realm=Spark Packages
+    host=spark-packages.org
+    user=$GITHUB_USERNAME
+    # Generate token at https://github.com/settings/tokens
+    password=$GITHUB_PERSONAL_ACCESS_TOKEN
+
 ## License
 
 Copyright 2015 Mediative

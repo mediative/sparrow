@@ -18,7 +18,6 @@ lazy val commonSettings = Seq(
   crossScalaVersions := Seq("2.10.5", "2.11.7"),
   licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
   headers := Map("scala" -> Apache2_0("2015", "Mediative")),
-  resolvers += "Custom Spark build" at "http://ypg-data.github.io/repo",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding", "UTF-8",
@@ -61,6 +60,15 @@ lazy val publishSettings = Seq(
   bintrayOrganization := Some("ypg-data")
 )
 
+lazy val sparkPackagesSettings = Seq(
+  spName := "ypg-data/sparrow",
+  sparkVersion := "1.3.1",
+  sparkComponents += "sql",
+  spAppendScalaVersion := true,
+  spIncludeMaven := true,
+  credentials += Credentials(Path.userHome / ".credentials" / "spark-packages.properties")
+)
+
 // Scala style guide: https://github.com/daniel-trinh/scalariform#scala-style-guide
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
    .setPreference(DoubleIndentClassDeclaration, true)
@@ -74,18 +82,6 @@ lazy val scalaTest = Seq(
   "org.scalatest"   %% "scalatest"    % "2.2.4"  % "test",
   "org.scalacheck"  %% "scalacheck"   % "1.12.1" % "test"
 )
-
-def sparkLibs(scalaVersion: String) = {
-  val sparkVersion = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 10)) => "1.3.1-DBC"
-    case _ /* 2.11+ */ => "1.3.1"
-  }
-
-  Seq(
-    "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
-    "org.apache.spark" %% "spark-sql"  % sparkVersion % "provided"
-  )
-}
 
 /*
  * Customized release process that reads the release version from the
@@ -130,12 +126,15 @@ lazy val core = project
     name := "sparrow",
     commonSettings,
     publishSettings,
+    sparkPackagesSettings,
     site.settings,
     ghpages.settings,
     site.includeScaladoc("api"),
     git.remoteRepo := "git@github.com:ypg-data/sparrow.git",
     defaultScalariformSettings,
-    libraryDependencies ++= scalaTest ++ sparkLibs(scalaVersion.value) ++ Seq(
+    libraryDependencies ++= scalaTest ++ Seq(
+      "org.apache.spark"       %% "spark-core"      % "1.3.1" % "provided",
+      "org.apache.spark"       %% "spark-sql"       % "1.3.1" % "provided",
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
       "org.scalaz"             %% "scalaz-core"     % "7.1.1", // https://github.com/scalaz/scalaz
       "com.github.nscala-time" %% "nscala-time"     % "1.8.0",
