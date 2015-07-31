@@ -24,7 +24,7 @@ tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.m
 To use the libray in an SBT project add the following two project settings:
 
     resolvers += Resolver.url("Sparrow Releases", url("https://dl.bintray.com/ypg-data/ivy-releases"))(Resolver.ivyStylePatterns)
-    libraryDependencies += "com.mediative" %% "sparrow" % "0.1.0"
+    libraryDependencies += "com.mediative" %% "sparrow" % "0.1.1"
 
 ## Building and Testing
 
