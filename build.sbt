@@ -65,7 +65,6 @@ lazy val sparkPackagesSettings = Seq(
   sparkVersion := "1.3.1",
   sparkComponents += "sql",
   spAppendScalaVersion := true,
-  spIncludeMaven := true,
   credentials += Credentials(Path.userHome / ".credentials" / "spark-packages.properties")
 )
 
