@@ -16,7 +16,6 @@
 
 package com.mediative.sparrow
 
-import java.sql.Timestamp
 import scala.reflect.ClassTag
 
 import scalaz._
@@ -32,7 +31,6 @@ import org.apache.spark.sql.types._
 import play.api.libs.functional.syntax._
 
 import RowConverter._
-import Alias._
 
 object DataFrameReaderTest {
   case class Simple(name: String, count: Long)
@@ -97,26 +95,11 @@ object DataFrameReaderTest {
   }
 }
 
-/*
-By design, toRDD requires the classes it works on to take at least two
-public constructor arguments.
-*/
-object TestCaseClasses {
-  @schema(equal = RowConverter.lenientEqual)
-  case class TestToRdd1(intVal: Int, stringVal: String)
-
-  @schema(equal = RowConverter.lenientEqual)
-  case class TestToRdd2(intVal: Int, intOptionVal: Option[Int])
-
-  @schema(equal = RowConverter.lenientEqual)
-  case class TestToRdd3(stringVal: String, timestampVal: Timestamp)
-}
-
 class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
+
   import DataFrameReaderTest._
 
   val sc = new SparkContext("local", "test2")
-  val sqlContext = new SQLContext(sc)
 
   override def afterAll() = sc.stop()
 
@@ -156,11 +139,12 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     }
   }
 
-  "toRDD" - {
+  "toRDD should" - {
 
     import DataFrameReader._
 
     def testSuccess[T: RowConverter: ClassTag](json: Array[String], expected: List[T]) = {
+      val sqlContext = new SQLContext(sc)
       val df = sqlContext.jsonRDD(sc.parallelize(json))
       val rdd = toRDD[T](df).valueOr { es => fail((es.head :: es.tail).mkString("\n")) }
 
@@ -168,56 +152,10 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
     }
 
     def testFailure[T: RowConverter: ClassTag](json: Array[String], expected: NonEmptyList[String]) = {
+      val sqlContext = new SQLContext(sc)
       val df = sqlContext.jsonRDD(sc.parallelize(json))
 
       assert(toRDD[T](df) == expected.failure)
-    }
-
-    // To get DataFrame#toRDD usage.
-    import com.mediative.sparrow.syntax.df._
-
-    "round-trip an object containing an Int and a String from RDD to DataFrame back to RDD" in {
-      import TestCaseClasses.TestToRdd1
-
-      val expected = TestToRdd1(1, "a")
-      val df = sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-      assert(df.toRDD[TestToRdd1].toOption.get.first == expected)
-    }
-
-    "round-trip an object containing an Int and an optional Int from RDD to DataFrame back to RDD" - {
-      "when containing some value" in {
-        import TestCaseClasses.TestToRdd2
-
-        val expected = TestToRdd2(1, Option(1))
-        val df =
-          sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
-      }
-
-      "when containing no value" in {
-        import TestCaseClasses.TestToRdd2
-
-        val expected = TestToRdd2(1, Option.empty)
-        val df =
-          sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-        assert(df.toRDD[TestToRdd2].toOption.get.first == expected)
-      }
-    }
-
-    "round-trip an object containing a String and a Timestamp from RDD to DataFrame back to RDD" in {
-      import TestCaseClasses.TestToRdd3
-
-      val expected =
-        TestToRdd3("a", Timestamp.valueOf("2015-07-15 09:00:00"))
-
-      val df =
-        sqlContext.createDataFrame(sc.parallelize(List(expected)))
-
-        pendingUntilFixed(
-          assert(df.toRDD[TestToRdd3].toOption.get.first == expected))
     }
 
     "work for simple case class with only primitives" in {
@@ -260,7 +198,7 @@ class DataFrameReaderTest extends FreeSpec with BeforeAndAfterAll {
       }
     }
 
-    "supported nested objects" in {
+    "support nested objects" in {
       val json = Array(
         """{"name": "Guillaume", "inner": {"name": "First Inner", "count": 121}}""",
         """{"name": "Last", "inner": {"name": "Last Inner", "count": 12}}"""
