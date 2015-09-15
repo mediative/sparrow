@@ -57,6 +57,13 @@ trait CodecLimitationsTestBase extends FreeSpec with BeforeAndAfterAll {
  * public constructor arguments.
  */
 object CodecLimitationsTest {
+
+  /*
+   * FIXME: Replace @schema annotations for the following case classes
+   * by direct use of DSL to decouple its failure from that of any
+   * regressions wrt @schema annotation.
+   */
+
   @schema(equal = RowConverter.lenientEqual)
   case class TestToRdd1(intVal: Int, stringVal: String)
 
