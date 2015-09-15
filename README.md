@@ -15,6 +15,14 @@ without concerns about backward compatibility.
 
 This library requires Spark 1.3+.
 
+## Limitations and Known Issues
+
+ - Fields of type `java.sql.Timestamp` is not supported.
+ - Custom wrapper fields types is not supported.
+ - Conversion of certain other field types are not supported.
+
+See the [CodecLimitationsTest](core/src/test/scala/com.mediative.sparrow/CodecLimitationsTest.scala) for details.
+
 ## Getting Started
 
 The best way to get started at this point is to read the [API
