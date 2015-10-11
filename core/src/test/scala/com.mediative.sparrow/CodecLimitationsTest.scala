@@ -31,25 +31,25 @@ import org.apache.spark.sql.types._
  */
 trait CodecLimitationsTestBase extends FreeSpec with BeforeAndAfterAll {
 
-   val sc = new SparkContext("local", "test2")
-   val sqlContext = new SQLContext(sc)
+  val sc = new SparkContext("local", "test2")
+  val sqlContext = new SQLContext(sc)
 
-   override def afterAll() = sc.stop()
+  override def afterAll() = sc.stop()
 
-   // To get DataFrame#toRDD usage.
-   import com.mediative.sparrow.syntax.df._
-   import scala.reflect.runtime.universe.TypeTag
+  // To get DataFrame#toRDD usage.
+  import com.mediative.sparrow.syntax.df._
+  import scala.reflect.runtime.universe.TypeTag
 
-   def assertCodec[T <: Product: ClassTag: TypeTag: RowConverter](value: T): Unit = {
-     val rdd0 = sc.parallelize(List(value))
-     assertResult(1) { rdd0.count }
-     val df = sqlContext.createDataFrame(rdd0)
-     val rdd1Maybe = df.toRDD[T]
-     assert(rdd1Maybe.isSuccess, rdd1Maybe)
-     val rdd1 = rdd1Maybe.toOption.get
-     assertResult(0) { rdd0.subtract(rdd1).count }
-     assertResult(0) { rdd1.subtract(rdd0).count }
-   }
+  def assertCodec[T <: Product: ClassTag: TypeTag: RowConverter](value: T): Unit = {
+    val rdd0 = sc.parallelize(List(value))
+    assertResult(1) { rdd0.count }
+    val df = sqlContext.createDataFrame(rdd0)
+    val rdd1Maybe = df.toRDD[T]
+    assert(rdd1Maybe.isSuccess, rdd1Maybe)
+    val rdd1 = rdd1Maybe.toOption.get
+    assertResult(0) { rdd0.subtract(rdd1).count }
+    assertResult(0) { rdd1.subtract(rdd0).count }
+  }
 }
 
 /**
