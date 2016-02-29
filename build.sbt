@@ -3,6 +3,8 @@ name in ThisBuild               := "sparrow"
 scalaVersion in ThisBuild       := "2.10.5"
 crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.7")
 
+lazy val MacroParadiseVersion = "2.1.0"
+
 lazy val sparkPackagesSettings = Seq(
   spName := "ypg-data/sparrow",
   sparkVersion := "1.6.0",
@@ -41,6 +43,15 @@ lazy val core = project
       "com.github.nscala-time" %% "nscala-time"     % "1.8.0",
       "org.log4s"              %% "log4s"           % "1.1.5",
       "org.scala-lang"          % "scala-reflect"   % scalaVersion.value,
-      compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
-    )
+      compilerPlugin("org.scalamacros" % "paradise" % MacroParadiseVersion cross CrossVersion.full)
+    ) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 10)) => Seq(
+          "org.scalamacros" %% "quasiquotes" % MacroParadiseVersion
+        )
+        case _ /* 2.11+ */ => Seq.empty
+      }
+    }
+
+
   )
