@@ -5,7 +5,7 @@ crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.7")
 
 lazy val sparkPackagesSettings = Seq(
   spName := "ypg-data/sparrow",
-  sparkVersion := "1.3.1",
+  sparkVersion := "1.6.0",
   sparkComponents += "sql",
   spAppendScalaVersion := true,
   credentials += Credentials(Path.userHome / ".credentials" / "spark-packages.properties")
@@ -34,8 +34,8 @@ lazy val core = project
     scalacOptions := scalacOptions.value.filterNot { _ == "-Xfatal-warnings" },
     sparkPackagesSettings,
     libraryDependencies ++= scalaTest ++ Seq(
-      "org.apache.spark"       %% "spark-core"      % "1.3.1" % "provided",
-      "org.apache.spark"       %% "spark-sql"       % "1.3.1" % "provided",
+      "org.apache.spark"       %% "spark-core"      % sparkVersion.value % "provided",
+      "org.apache.spark"       %% "spark-sql"       % sparkVersion.value % "provided",
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
       "org.scalaz"             %% "scalaz-core"     % "7.1.1", // https://github.com/scalaz/scalaz
       "com.github.nscala-time" %% "nscala-time"     % "1.8.0",

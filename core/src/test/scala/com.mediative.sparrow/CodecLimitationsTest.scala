@@ -21,7 +21,7 @@ import scala.reflect.ClassTag
 
 import org.scalatest._
 
-import org.apache.spark.SparkContext
+import org.apache.spark.{ SparkContext, SparkConf }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
@@ -31,7 +31,7 @@ import org.apache.spark.sql.types._
  */
 trait CodecLimitationsTestBase extends FreeSpec with BeforeAndAfterAll {
 
-  val sc = new SparkContext("local", "test2")
+  val sc = new SparkContext("local", "test2", new SparkConf)
   val sqlContext = new SQLContext(sc)
 
   override def afterAll() = sc.stop()
