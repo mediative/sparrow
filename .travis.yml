@@ -4,8 +4,8 @@ sudo: false
 language: scala
 
 scala:
-  - 2.10.4
   - 2.10.5
+  - 2.10.6
   - 2.11.7
 
 jdk:
@@ -15,11 +15,10 @@ jdk:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
 
-  # Tricks to avoid unnecessary cache updates
+before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
-# These directories are cached at the end of the build
 cache:
   directories:
     - $HOME/.ivy2/cache

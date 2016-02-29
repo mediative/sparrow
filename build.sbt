@@ -3,9 +3,11 @@ name in ThisBuild               := "sparrow"
 scalaVersion in ThisBuild       := "2.10.5"
 crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.7")
 
+lazy val MacroParadiseVersion = "2.1.0"
+
 lazy val sparkPackagesSettings = Seq(
   spName := "ypg-data/sparrow",
-  sparkVersion := "1.3.1",
+  sparkVersion := "1.6.0",
   sparkComponents += "sql",
   spAppendScalaVersion := true,
   credentials += Credentials(Path.userHome / ".credentials" / "spark-packages.properties")
@@ -34,13 +36,22 @@ lazy val core = project
     scalacOptions := scalacOptions.value.filterNot { _ == "-Xfatal-warnings" },
     sparkPackagesSettings,
     libraryDependencies ++= scalaTest ++ Seq(
-      "org.apache.spark"       %% "spark-core"      % "1.3.1" % "provided",
-      "org.apache.spark"       %% "spark-sql"       % "1.3.1" % "provided",
+      "org.apache.spark"       %% "spark-core"      % sparkVersion.value % "provided",
+      "org.apache.spark"       %% "spark-sql"       % sparkVersion.value % "provided",
       "com.typesafe.play"      %% "play-functional" % "2.4.0-RC1",
       "org.scalaz"             %% "scalaz-core"     % "7.1.1", // https://github.com/scalaz/scalaz
       "com.github.nscala-time" %% "nscala-time"     % "1.8.0",
       "org.log4s"              %% "log4s"           % "1.1.5",
       "org.scala-lang"          % "scala-reflect"   % scalaVersion.value,
-      compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
-    )
+      compilerPlugin("org.scalamacros" % "paradise" % MacroParadiseVersion cross CrossVersion.full)
+    ) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 10)) => Seq(
+          "org.scalamacros" %% "quasiquotes" % MacroParadiseVersion
+        )
+        case _ /* 2.11+ */ => Seq.empty
+      }
+    }
+
+
   )

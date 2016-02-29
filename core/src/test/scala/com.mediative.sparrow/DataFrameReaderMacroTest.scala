@@ -23,7 +23,7 @@ import scalaz.syntax.validation._
 
 import org.scalatest._
 
-import org.apache.spark.SparkContext
+import org.apache.spark.{ SparkContext, SparkConf }
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
@@ -84,7 +84,7 @@ class DataFrameReaderMacroTest extends FreeSpec with BeforeAndAfterAll {
 
   import DataFrameReaderMacroTest._
 
-  val sc = new SparkContext("local", "test2")
+  val sc = new SparkContext("local", "test2", new SparkConf)
 
   override def afterAll() = sc.stop()
 
@@ -129,7 +129,7 @@ class DataFrameReaderMacroTest extends FreeSpec with BeforeAndAfterAll {
 
     def testSuccess[T: RowConverter: ClassTag](json: Array[String], expected: List[T]) = {
       val sqlContext = new SQLContext(sc)
-      val df = sqlContext.jsonRDD(sc.parallelize(json))
+      val df = sqlContext.read.json(sc.parallelize(json))
       val rdd = toRDD[T](df).valueOr { es => fail((es.head :: es.tail).mkString("\n")) }
 
       assert(rdd.collect().toList == expected)
@@ -137,7 +137,7 @@ class DataFrameReaderMacroTest extends FreeSpec with BeforeAndAfterAll {
 
     def testFailure[T: RowConverter: ClassTag](json: Array[String], expected: NonEmptyList[String]) = {
       val sqlContext = new SQLContext(sc)
-      val df = sqlContext.jsonRDD(sc.parallelize(json))
+      val df = sqlContext.read.json(sc.parallelize(json))
 
       assert(toRDD[T](df) == expected.failure)
     }
