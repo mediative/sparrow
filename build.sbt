@@ -52,6 +52,4 @@ lazy val core = project
         case _ /* 2.11+ */ => Seq.empty
       }
     }
-
-
   )

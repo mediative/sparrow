@@ -53,7 +53,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute.
 To release version `x.y.z` run:
 
     $ sbt release -Dversion=x.y.z
-    $ sbt ++2.11.7 publish
 
 This will take care of running tests, tagging and publishing JARs and API docs
 for both version 2.10 and 2.11. To publish the Spark package run:
@@ -69,6 +68,16 @@ the following content:
     user=$GITHUB_USERNAME
     # Generate token at https://github.com/settings/tokens
     password=$GITHUB_PERSONAL_ACCESS_TOKEN
+
+If you see the following error go to
+[http://spark-packages.org/](http://spark-packages.org/) and login to grant
+access to your GitHub account:
+
+    /opt/sparrow#master > sbt core/spPublish
+    ...
+    Zip File created at: /opt/sparrow/core/target/sparrow-0.2.0-s_2.10.zip
+
+    ERROR: 404 - Error while accessing commit on Github. Are you sure that you pushed your local commit to the remote repository?
 
 ## License
 
