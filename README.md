@@ -72,7 +72,7 @@ the following content:
 
 ## License
 
-Copyright 2015 Mediative
+Copyright 2016 Mediative
 
 Licensed under the Apache License, Version 2.0. See LICENSE file for terms and
 conditions for use, reproduction, and distribution.
