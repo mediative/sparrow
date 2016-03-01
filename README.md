@@ -32,7 +32,7 @@ tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.m
 To use the libray in an SBT project add the following two project settings:
 
     resolvers += Resolver.bintrayRepo("ypg-data", "maven")
-    libraryDependencies += "com.mediative" %% "sparrow" % "0.1.2"
+    libraryDependencies += "com.mediative" %% "sparrow" % "0.2.0"
 
 ## Building and Testing
 
@@ -56,7 +56,7 @@ To release version `x.y.z` run:
     $ sbt ++2.11.7 publish
 
 This will take care of running tests, tagging and publishing JARs and API docs
-for both version 2.10 and 2.11.
+for both version 2.10 and 2.11. To publish the Spark package run:
 
     $ sbt core/spPublish
     $ sbt ++2.11.7 core/spPublish
