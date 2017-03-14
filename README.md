@@ -2,8 +2,7 @@
 
 Sparrow is a Scala library for converting Spark Dataframe rows to case classes.
 
-[![Build Status](https://travis-ci.org/ypg-data/sparrow.svg)](https://travis-ci.org/ypg-data/sparrow)
-[![Join the chat at https://gitter.im/ypg-data/sparrow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ypg-data/sparrow)
+[![Build Status](https://travis-ci.org/mediative/sparrow.svg)](https://travis-ci.org/mediative/sparrow)
 [![Latest version](https://api.bintray.com/packages/ypg-data/maven/sparrow/images/download.svg)](https://bintray.com/ypg-data/maven/sparrow/_latestVersion)
 
 ## Status
@@ -26,8 +25,8 @@ See the [CodecLimitationsTest](core/src/test/scala/com.mediative.sparrow/CodecLi
 ## Getting Started
 
 The best way to get started at this point is to read the [API
-docs](https://ypg-data.github.io/sparrow/api) and look at the [examples in the
-tests](https://github.com/ypg-data/sparrow/tree/master/core/src/test/scala/com.mediative.sparrow).
+docs](https://mediative.github.io/sparrow/api) and look at the [examples in the
+tests](https://github.com/mediative/sparrow/tree/master/core/src/test/scala/com.mediative.sparrow).
 
 To use the libray in an SBT project add the following two project settings:
 
